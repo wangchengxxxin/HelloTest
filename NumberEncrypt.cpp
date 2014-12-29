@@ -305,8 +305,8 @@ void NumberEncrypt::sqlGet(char sqlstr[])
 
 void NumberEncrypt::desEncode(char* plaintext)
 {
+	numPlaintextLen = sizeof(plaintext);
 	des.SetMsg(plaintext, 9);
-	numPlaintextLen = des.getPlaintextLen();
 	des.SetKey();
 	//º”√‹
 	des.Crypte();
