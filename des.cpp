@@ -157,7 +157,6 @@ void DES::SetMsg(char* _msg,int _length)
 	}  
 	//转换成二进制  
 	Char2Bit(msg,bmsg,8);  
-
 };  
 //  
 //设置密钥  
