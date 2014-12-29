@@ -241,67 +241,147 @@ vector<int> NumberEncrypt::getID()
 	return this->number;
 }
 
-void NumberEncrypt::getLessDataByMark( int mark)
+void NumberEncrypt::getDataByMark(int mark, int choice, int outputway, int inputid)
 {
 	char sqlstr[50];
-	sprintf(sqlstr, "SELECT * FROM words WHERE mark <= '%d';", mark);
-	sqlGet(sqlstr);
+	if (choice == 1)
+	{
+		sprintf(sqlstr, "SELECT * FROM words WHERE mark <= '%d';", mark);
+	}
+	else if(choice == 2)
+	{
+		sprintf(sqlstr, "SELECT * FROM words WHERE mark >= '%d';", mark);
+	}
+	sqlGetByMark(sqlstr, choice, outputway, inputid);
 }
 
-void NumberEncrypt::getLargeDataByMark( int mark )
-{
-	char sqlstr[50];
-	sprintf(sqlstr, "SELECT * FROM words WHERE mark >= '%d';", mark);
-	sqlGet(sqlstr);
-}
+// void NumberEncrypt::getLessDataByMark( int mark)
+// {
+// 	char sqlstr[50];
+// 	sprintf(sqlstr, "SELECT * FROM words WHERE mark <= '%d';", mark);
+// 	sqlGetByMark(sqlstr, 1);
+// }
+// 
+// void NumberEncrypt::getLessPlatxtByMark(int mark)
+// {
+// 	char sqlstr[50];
+// 	sprintf(sqlstr, "SELECT * FROM words WHERE mark <= '%d';", mark);
+// 	sqlGetByMark(sqlstr, 2);
+// }
+// 
+// void NumberEncrypt::getLargeDataByMark( int mark )
+// {
+// 	char sqlstr[50];
+// 	sprintf(sqlstr, "SELECT * FROM words WHERE mark >= '%d';", mark);
+// 	sqlGetByMark(sqlstr);
+// }
 
-void NumberEncrypt::sqlGet(char sqlstr[])
+void NumberEncrypt::sqlGetByMark(char sqlstr[], int choice, int outputway, int inputid)
 {
 	MYSQL_RES *result = NULL;
 	if (0 == mysql_query(&mydata, sqlstr)) {
-		cout << "mysql_query() select data succeed" << endl;
+		std::cout << "mysql_query() select data succeed" << endl;
 
 		//一次性取得数据集
 		result = mysql_store_result(&mydata);
 		//取得并打印行数
 		int rowcount = mysql_num_rows(result);
-		cout << "row count: " << rowcount << endl;
+		std::cout << "row count: " << rowcount << endl;
 
 		//取得并打印各字段的名称
 		unsigned int fieldcount = mysql_num_fields(result);
 		MYSQL_FIELD *field = NULL;
 		for (unsigned int i = 0; i < fieldcount; i++) {
 			field = mysql_fetch_field_direct(result, i);
-			cout << field->name << "\t\t";
+			std::cout << field->name << "\t\t\t";
 		}
-		cout << endl;
+		std::cout << endl;
 
 		//打印各行
 		MYSQL_ROW row = NULL;
 		row = mysql_fetch_row(result);
 		while (NULL != row) {
 			for (int i = 0 ; i < fieldcount; i++) {
-				if (i==1)
+				if(outputway == 1)
 				{
-					bool bo[64];
-					for (int i=0; i<64; i++)
+					if (i==1)
 					{
-						bo[i] = (row[1])[i]-48;
+						bool bo[64];
+						for (int i=0; i<64; i++)
+						{
+							bo[i] = (row[1])[i]-48;
+						}
+						std::cout<<row[i]<<"\t\t\t";
+						//cout<<desDecode(bo)<<"\t\t";
 					}
-					cout<<desDecode(bo)<<"\t\t";
+					else 
+					std::cout << row[i] << "\t\t\t";
 				}
-				else 
-				cout << row[i] << "\t\t";
+				if (outputway == 2)
+				{
+					if (i==1)
+					{
+						bool bo[64];
+						for (int i=0; i<64; i++)
+						{
+							bo[i] = (row[1])[i]-48;
+						}
+						//std::cout<<row[i]<<"\t\t";
+						std::cout<<desDecode(bo)<<"\t\t\t";
+					}
+					else 
+						std::cout << row[i] << "\t\t\t";
+				}
+				if (outputway == 3)
+				{
+					if (i==1)
+					{
+						bool bo[64];
+						for (int i=0; i<64; i++)
+						{
+							bo[i] = (row[1])[i]-48;
+						}
+						char* temp = desDecode(bo);
+						int inttemp = atoi(temp);
+						//std::cout<<row[i]<<"\t\t";
+						//std::cout<<desDecode(bo)<<"\t\t";
+						if (choice == 1)
+						{
+							if (inttemp <= inputid)
+							{
+								std::cout<<inttemp<<"\t\t\t";
+							}
+							else
+							{
+								std::cout<<"mark符合，id不符"<<"\t\t";
+							}
+						}
+						else if(choice == 2)
+						{
+							if (inttemp >= inputid)
+							{
+								std::cout<<inttemp<<"\t\t\t";
+							}
+							else
+							{
+								std::cout<<"mark符合，id 不符"<<"\t\t";
+							}
+						}
+					}
+					else 
+						std::cout << row[i] << "\t\t";
+				}
 			}
-			cout << endl;
+			std::cout << endl;
 			row = mysql_fetch_row(result);
 		}
 
 	} else {
-		cout << "mysql_query() select data failed" << endl;
+		std::cout << "mysql_query() select data failed" << endl;
 		mysql_close(&mydata);
 	}
 }
+
 
 void NumberEncrypt::desEncode(char* plaintext)
 {
@@ -316,9 +396,19 @@ char* NumberEncrypt::desDecode( bool cryptedMsg[64] )
 {
 	char* temp =  des.getDecipherByCryped(cryptedMsg);
 	memset(realDecipher, 0, 9);
+	bool equalToZero = true;
+	int zeroCount = 0;
 	for (int i=0; i<numPlaintextLen; i++)
 	{
-		realDecipher[i] = temp[i];
+		if (equalToZero && temp[i] == '0')
+		{
+			zeroCount++;
+		}
+		if (temp[i] != '0')
+		{
+			equalToZero = false;
+			realDecipher[i-zeroCount] = temp[i];
+		}
 	}
 	realDecipher[numPlaintextLen] = '\0';
 	return realDecipher;
@@ -326,7 +416,9 @@ char* NumberEncrypt::desDecode( bool cryptedMsg[64] )
 
 void NumberEncrypt::readFileAndSave()
 {
-	char maxchar[9]={""}, minchar[9]={"99999999"};
+	maxNumber = 0;
+	minNumber = 99999999;
+	int intData;
 	ifstream file;
 	char *fileName = "data.txt";
 	char dataBuf[9] = {"\0"};
@@ -338,21 +430,20 @@ void NumberEncrypt::readFileAndSave()
 		while (!file.eof())
 		{
 			file.getline(dataBuf, 8);
-			if (strcmp(maxchar, dataBuf) < 0)
+			intData = atoi(dataBuf);
+			if (intData > maxNumber)
 			{
-				strcpy(maxchar, dataBuf);
+				maxNumber = intData;
 			}
-			if (strcmp(minchar, dataBuf) > 0)
+			if(intData < minNumber)
 			{
-				strcpy(minchar, dataBuf);
-			}
+				minNumber = intData;
+			}		
 			number.push_back(atoi(dataBuf));
 			//id.push_back(i++);
 			tranferedSave(i++, dataBuf);
 			cout<<dataBuf<<endl;
 		}
-		maxNumber = atoi(maxchar);
-		minNumber = atoi(minchar);
 	}
 	else
 	{

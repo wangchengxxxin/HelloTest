@@ -26,7 +26,7 @@ void main()
 				cout<<"查询出来的ID和mark分别是："<<numEnc->getID()[i]<<"\t"<<numEnc->getMark()[i]<<endl;
 			}
 		}
-		numEnc->getLessDataByMark(maxmark);
+		//numEnc->getLessDataByMark(maxmark);
 	}
 	//如果是  40<id  形式
 	else if(max.compare("#") == 0)
@@ -34,7 +34,11 @@ void main()
 		int intmin = atoi(min.c_str());
 		int minmark = numEnc->getOneMark(intmin);
 		cout<<"minmark is "<<minmark<<endl;
-		numEnc->getLargeDataByMark(minmark);
+		numEnc->getDataByMark(minmark, 2, 1, intmin);
+		system("pause");
+		numEnc->getDataByMark(minmark, 2, 2, intmin);
+		system("pause");
+		numEnc->getDataByMark(minmark, 2, 3, intmin);
 	}
 
 	//如果是  40<id<50  形式

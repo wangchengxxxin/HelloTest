@@ -130,10 +130,11 @@ const char DES::bitmask[8]={ 128,64,32,16,8,4,2,1};
 //实现函数  
 
 //  
-//设置明文  
+//设置明文 ,不足8位前面补0
 //  
 void DES::SetMsg(char* _msg,int _length)  
 {  
+	int count = 0;
 	plaintextLen = 0;
 	if (_length>9)  
 	{  
@@ -141,20 +142,23 @@ void DES::SetMsg(char* _msg,int _length)
 	}  
 	for (int i = 0; i < _length; i++)  
 	{  
-// 		if (plaintextLen <= i)
-// 		{
-// 			msg[i] = '0';
-// 		}
-		if (_msg[i] == NULL)
+		if (_msg[i] != NULL)
+		{
+			count++;
+		}
+	}  
+	for (int i=0; i < _length; i++)
+	{
+		if (i < _length - 1 - count)
 		{
 			msg[i] = '0';
 		}
 		else
 		{
-			msg[i]=_msg[i];
-			plaintextLen++;
-		} 
-	}  
+			msg[i] = _msg[i - (_length-1-count)];
+		}
+
+	}
 	//转换成二进制  
 	Char2Bit(msg,bmsg,8);  
 };  
