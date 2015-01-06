@@ -18,7 +18,6 @@ public:
 	std::string encode(const std::string &str);
 	//连接数据库
 	void connectDB();
-	void search();
 	void partition();
 	//对输入的ID进行ident函数映射
 	void ident();
@@ -30,10 +29,10 @@ public:
 	vector<int> getMark();
 	//获取vector<int> id
 	vector<int> getID();
-	/*根据mark获取数据库中的数据,choice=1为小于等于，choice=2为大于等于
+	/*根据mark获取数据库中的数据,choice=1为小于等于，choice=2为大于等于,
 	outputway=1 输出64位密文 outputway=2输出
 	根据mark查询的解密后明文，outputway=3 输出根据输入id来查询的明文*/
-	void getDataByMark(int mark, int choice, int outputway, int inputid);
+	void getData(int mark, int choice, int outputway, int inputid);
 
 // 	//获取数据库中比输入mark大的密文
 // 	void getLessDataByMark( int mark);
@@ -44,9 +43,6 @@ public:
 // 	//获取数据库中在输入的2个mark中间的数据
 // 	void getMidDataByMark( int minmark,int maxmark);
 
-
-	/*SQL语句 获取符合条件的数据输出 choice=1 输出64位密文 choice=2输出\
-	根据mark查询的解密后明文，choice=3 输出根据输入id来查询的明文*/
 	void sqlGetByMark(char sqlstr[], int choice, int outputway, int inputid);
 	//加密
 	void desEncode(char* plaintext);

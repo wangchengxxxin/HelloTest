@@ -45,9 +45,6 @@ void NumberEncrypt::init()
 	dataSave();
 }
 
-void NumberEncrypt::search()
-{
-}
 
 void NumberEncrypt::connectDB()
 {
@@ -58,10 +55,6 @@ void NumberEncrypt::connectDB()
 		cout << "mysql_library_init() failed" << endl;
 	}
 
-#ifdef STEPBYSTEP
-	system("pause");
-#endif
-
 	//初始化数据结构
 	if (NULL != mysql_init(&mydata)) {
 		cout << "mysql_init() succeed" << endl;
@@ -69,9 +62,6 @@ void NumberEncrypt::connectDB()
 		cout << "mysql_init() failed" << endl;
 	}
 
-#ifdef STEPBYSTEP
-	system("pause");
-#endif
 
 	//在连接数据库之前，设置额外的连接选项
 	//可以设置的选项很多，这里设置字符集，否则无法处理中文
@@ -81,9 +71,6 @@ void NumberEncrypt::connectDB()
 		cout << "mysql_options() failed" << endl;
 	}
 
-#ifdef STEPBYSTEP
-	system("pause");
-#endif
 
 	//连接数据库
 	if (NULL
@@ -96,11 +83,6 @@ void NumberEncrypt::connectDB()
 		cout << "mysql_real_connect() failed" << endl;
 	}
 
-
-	//记得要在析构函数里面关掉mysql
-	//mysql_free_result(result);
-	//mysql_close(&mydata);
-	//mysql_server_end();
 }
 
 
@@ -124,12 +106,13 @@ void NumberEncrypt::ident()
 			if (number[i]>part[9])
 			{
 				mark.push_back(9*3+5);
+				break;
 			}
 		}
 	}
 	for (int i=0; i<length; i++)
 	{
-		cout<<"marks are "<<mark[i]<<"\t";
+		cout<<"mark is "<<mark[i]<<"\t";
 	}
 	cout<<endl;
 	
@@ -137,55 +120,12 @@ void NumberEncrypt::ident()
 
 void NumberEncrypt::partition()
 {
-// 	string sqlstr = "SELECT id FROM words";
-// 	MYSQL_RES *result = NULL;
-// 	if(0 == mysql_query(&mydata, sqlstr.c_str())) 
-// 	{
-// 		cout<<"mysql_query() select data succeed"<<endl;
-// 		result = mysql_store_result(&mydata);
-// 		//取得并打印行数
-// 		const int rowcont = mysql_num_rows(result);
-// 		cout<<"row cont: "<<rowcont<<endl;
-// 		
-// 		//打印各行
-// 		MYSQL_ROW row = NULL;
-// 		row = mysql_fetch_row(result);
-// 		int rowi;
-// 		NumberEncrypt::maxNumber = minNumber = atoi(row[0]);
-// 		int idCount = 0;
-// 		while (NULL != row) {
-// 			rowi = atoi(row[0]);
-// 			number.push_back(rowi);
-// 			if(rowi > maxNumber)
-// 				maxNumber = rowi;
-// 			if(rowi < minNumber)
-// 				minNumber = rowi;
-// 			cout << row[0] << "\t\t";
-// 
-// 			cout <<endl;
-// 			row = mysql_fetch_row(result);
-// 		}
-// 		cout<<"maxid: "<<maxNumber<<"\t"<<"minid: "<<minNumber<<endl;
-// 
-// 		//对id进行划分
-// 		int span = maxNumber - minNumber;
-// 		for(int i = 0; i < SPANNUMBER; i++)
-// 		{
-// 			part[i] = double(span / SPANNUMBER) * i + minNumber;
-// 			cout<<part[i]<<"\t"<<endl;
-// 		}
-// 	}
-// 	else
-// 	{
-// 		cout<<"mysql_query() select data failed"<<endl;
-// 		mysql_close(&mydata);
-// 	}
-	 		//对id进行划分
+	 //对id进行划分
 	 int span = maxNumber - minNumber;
 	 for(int i = 0; i < SPANNUMBER; i++)
 	 {
 	 	part[i] = double(span / SPANNUMBER) * i + minNumber;
-	 	cout<<"part i"<<part[i]<<endl;
+	 	cout<<"parti is"<<part[i]<<endl;
 	 }
 }
 
@@ -241,7 +181,7 @@ vector<int> NumberEncrypt::getID()
 	return this->number;
 }
 
-void NumberEncrypt::getDataByMark(int mark, int choice, int outputway, int inputid)
+void NumberEncrypt::getData(int mark, int choice, int outputway, int inputid)
 {
 	char sqlstr[50];
 	if (choice == 1)
@@ -334,8 +274,10 @@ void NumberEncrypt::sqlGetByMark(char sqlstr[], int choice, int outputway, int i
 				}
 				if (outputway == 3)
 				{
+
 					if (i==1)
 					{
+						cout<<"\t";
 						bool bo[64];
 						for (int i=0; i<64; i++)
 						{
@@ -353,7 +295,7 @@ void NumberEncrypt::sqlGetByMark(char sqlstr[], int choice, int outputway, int i
 							}
 							else
 							{
-								std::cout<<"mark符合，id不符"<<"\t\t";
+								std::cout<<"mark符合，id不符"<<"\t";
 							}
 						}
 						else if(choice == 2)
@@ -364,7 +306,7 @@ void NumberEncrypt::sqlGetByMark(char sqlstr[], int choice, int outputway, int i
 							}
 							else
 							{
-								std::cout<<"mark符合，id 不符"<<"\t\t";
+								std::cout<<"mark符合，id 不符"<<"\t";
 							}
 						}
 					}
@@ -430,19 +372,19 @@ void NumberEncrypt::readFileAndSave()
 		while (!file.eof())
 		{
 			file.getline(dataBuf, 8);
-			intData = atoi(dataBuf);
-			if (intData > maxNumber)
-			{
-				maxNumber = intData;
-			}
-			if(intData < minNumber)
-			{
-				minNumber = intData;
-			}		
-			number.push_back(atoi(dataBuf));
-			//id.push_back(i++);
-			tranferedSave(i++, dataBuf);
-			cout<<dataBuf<<endl;
+				intData = atoi(dataBuf);
+				if (intData > maxNumber)
+				{
+					maxNumber = intData;
+				}
+				if(intData < minNumber)
+				{
+					minNumber = intData;
+				}		
+				number.push_back(atoi(dataBuf));
+				//id.push_back(i++);
+				tranferedSave(i++, dataBuf);
+				cout<<dataBuf<<endl;
 		}
 	}
 	else
@@ -464,7 +406,7 @@ void NumberEncrypt::tranferedSave(int m, char* number )
 	char sqlstr[120];
 	sprintf(sqlstr, "INSERT INTO words(id, etuple) VALUES('%d','%s');", m, bcrypted);
 	if (0 == mysql_query(&mydata, sqlstr)) {
-		cout << "mysql_query() tranfered insert data succeed" << endl;
+		cout<<"mysql_query() select data succeed"<<endl;
 	} else {
 		cout << "数据已经录入，请不要重复录入" << endl;
 		//mysql_close(&mydata);
